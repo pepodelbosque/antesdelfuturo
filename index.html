@@ -24,7 +24,13 @@
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
+  <body class="is-loading">
+    <div class="boot-loader" id="boot-loader" aria-hidden="true">
+      <div class="boot-mark">
+        <span class="boot-square"></span>
+        <span class="boot-square boot-square-two"></span>
+      </div>
+    </div>
     <div class="page-shell">
       <header class="site-header">
         <a class="brand" href="#inicio" aria-label="Ir al inicio">
@@ -58,7 +64,7 @@
 
       <main>
         <section class="hero section" id="inicio">
-          <div class="hero-copy" data-reveal="up">
+          <div class="hero-copy">
             <div class="hero-badge">
               <span class="hero-badge-dot"></span>
               Plataforma de inteligencia preventiva para proyectos criticos

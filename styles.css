@@ -41,6 +41,74 @@ body {
   background: linear-gradient(180deg, #000000 0%, #050507 100%);
 }
 
+.is-loading {
+  overflow: hidden;
+}
+
+.is-loading .page-shell {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: #000000;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.boot-loader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.boot-loader.is-double .boot-mark {
+  gap: 16px;
+}
+
+.boot-square {
+  width: 14px;
+  height: 14px;
+  background: var(--text);
+  animation: brand-blink 1.2s infinite;
+}
+
+.boot-loader.is-double .boot-square {
+  animation-duration: 0.58s;
+}
+
+.boot-square-two {
+  width: 0;
+  opacity: 0;
+  transform: scale(0.92);
+  overflow: hidden;
+  background: var(--accent);
+  animation: brand-blink 1.2s infinite;
+  transition: width 0.22s ease, opacity 0.22s ease, transform 0.22s ease;
+}
+
+.boot-loader.is-double .boot-square-two {
+  width: 14px;
+  opacity: 1;
+  transform: scale(1);
+  animation-duration: 0.58s;
+}
+
+.boot-loader.is-fast .boot-square,
+.boot-loader.is-fast .boot-square-two {
+  animation-duration: 0.32s;
+}
+
 .hero h1,
 .section-heading h2,
 .cta-copy h2 {
@@ -157,6 +225,7 @@ code {
 }
 
 .brand-text {
+  font-family: var(--font-sans);
   font-size: 0.88rem;
 }
 
@@ -493,6 +562,40 @@ main > .section:first-of-type {
   background: transparent;
   font-family: var(--font-body);
   letter-spacing: 0.08em;
+}
+
+.hero.is-hero-intro .hero-kicker,
+.hero.is-hero-intro h1,
+.hero.is-hero-intro .hero-text,
+.hero.is-hero-intro .hero-actions,
+.hero.is-hero-intro .hero-points,
+.hero.is-hero-intro .trust-strip {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+.hero.is-hero-intro.is-hero-run .hero-kicker {
+  animation: hero-fade-up 0.52s cubic-bezier(0.2, 0.8, 0.2, 1) 0ms both;
+}
+
+.hero.is-hero-intro.is-hero-run h1 {
+  animation: hero-fade-up 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) 110ms both;
+}
+
+.hero.is-hero-intro.is-hero-run .hero-text {
+  animation: hero-fade-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) 900ms both;
+}
+
+.hero.is-hero-intro.is-hero-rest .hero-actions {
+  animation: hero-fade-up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) 0ms both;
+}
+
+.hero.is-hero-intro.is-hero-rest .hero-points {
+  animation: hero-fade-up 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) 90ms both;
+}
+
+.hero.is-hero-intro.is-hero-rest .trust-strip {
+  animation: hero-fade-up 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) 160ms both;
 }
 
 .hero-panel {
@@ -1094,6 +1197,18 @@ main > .section:first-of-type {
   }
 }
 
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -1109,6 +1224,11 @@ main > .section:first-of-type {
   [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+
+  .boot-loader {
+    opacity: 0;
+    pointer-events: none;
   }
 }
 

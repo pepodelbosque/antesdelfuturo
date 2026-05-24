@@ -6,9 +6,81 @@ const contactWhatsappButton = document.querySelector(".contact-whatsapp");
 const revealNodes = document.querySelectorAll("[data-reveal]");
 const heroSection = document.querySelector("#inicio");
 const sectionTwo = document.querySelector("main > section.section:not(#inicio)");
+const bootLoader = document.querySelector("#boot-loader");
 
 const WHATSAPP_NUMBER = "56900000000";
 const NAV_PREOPEN_PX = 160;
+
+const forceHeroStart = () => {
+  const target = heroSection instanceof HTMLElement ? heroSection : document.body;
+  const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+
+  document.documentElement.style.scrollBehavior = "auto";
+  window.scrollTo(0, target.offsetTop);
+  document.documentElement.style.scrollBehavior = previousScrollBehavior;
+};
+
+let heroIntroRan = false;
+const runHeroIntro = () => {
+  if (heroIntroRan) {
+    return;
+  }
+
+  if (!(heroSection instanceof HTMLElement)) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  heroIntroRan = true;
+
+  const heroText = heroSection.querySelector(".hero-text");
+  const heroTextNode = heroText instanceof HTMLElement ? heroText : null;
+  const fullText = heroTextNode?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+
+  heroSection.classList.add("is-hero-intro");
+  window.requestAnimationFrame(() => heroSection.classList.add("is-hero-run"));
+
+  if (!heroTextNode || !fullText) {
+    heroSection.classList.add("is-hero-rest");
+    return;
+  }
+
+  heroTextNode.textContent = "";
+
+  const startTypingAtMs = 980;
+  const charDelayMs = 10;
+
+  window.setTimeout(() => {
+    let index = 0;
+
+    const step = () => {
+      index += 1;
+      heroTextNode.textContent = fullText.slice(0, index);
+
+      if (index >= fullText.length) {
+        window.setTimeout(() => heroSection.classList.add("is-hero-rest"), 120);
+        return;
+      }
+
+      window.setTimeout(step, charDelayMs);
+    };
+
+    step();
+  }, startTypingAtMs);
+};
+
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+
+window.addEventListener("pageshow", forceHeroStart);
 
 const closeMobileNav = () => {
   if (!siteNav || !navToggle) {
@@ -37,6 +109,40 @@ if (navToggle && siteNav) {
   navLinks.forEach((link) => {
     link.addEventListener("click", closeMobileNav);
   });
+}
+
+if (bootLoader instanceof HTMLDivElement) {
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (prefersReducedMotion) {
+    forceHeroStart();
+    document.body.classList.remove("is-loading");
+    bootLoader.remove();
+  } else {
+    window.setTimeout(() => {
+      bootLoader.classList.add("is-double");
+    }, 2000);
+
+    window.setTimeout(() => {
+      bootLoader.classList.add("is-fast");
+    }, 2800);
+
+    window.setTimeout(() => {
+      forceHeroStart();
+      document.body.classList.remove("is-loading");
+      runHeroIntro();
+      bootLoader.classList.add("is-hidden");
+    }, 3000);
+
+    window.setTimeout(() => {
+      bootLoader.remove();
+    }, 3200);
+  }
+} else {
+  document.body.classList.remove("is-loading");
+  runHeroIntro();
 }
 
 const updateHeaderState = () => {
