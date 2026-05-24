@@ -5,11 +5,11 @@ const navLinks = document.querySelectorAll(".site-nav a");
 const contactWhatsappButton = document.querySelector(".contact-whatsapp");
 const revealNodes = document.querySelectorAll("[data-reveal]");
 const heroSection = document.querySelector("#inicio");
-const sectionTwo = document.querySelector("main > section.section:not(#inicio)");
 const bootLoader = document.querySelector("#boot-loader");
 
 const WHATSAPP_NUMBER = "56900000000";
 const NAV_PREOPEN_PX = 160;
+const NAV_IDLE_CLOSE_MS = 3000;
 
 const forceHeroStart = () => {
   const target = heroSection instanceof HTMLElement ? heroSection : document.body;
@@ -82,6 +82,57 @@ if ("scrollRestoration" in history) {
 
 window.addEventListener("pageshow", forceHeroStart);
 
+let navIdleCloseTimeout = null;
+let navActivityListening = false;
+
+const scheduleNavAutoClose = () => {
+  if (!siteNav || !siteNav.classList.contains("is-open")) {
+    return;
+  }
+
+  if (navIdleCloseTimeout) {
+    window.clearTimeout(navIdleCloseTimeout);
+  }
+
+  navIdleCloseTimeout = window.setTimeout(() => {
+    closeMobileNav();
+  }, NAV_IDLE_CLOSE_MS);
+};
+
+const onNavActivity = () => {
+  scheduleNavAutoClose();
+};
+
+const addNavActivityListeners = () => {
+  if (navActivityListening) {
+    return;
+  }
+
+  const options = { passive: true };
+  document.addEventListener("pointerdown", onNavActivity, options);
+  document.addEventListener("pointermove", onNavActivity, options);
+  document.addEventListener("touchstart", onNavActivity, options);
+  document.addEventListener("wheel", onNavActivity, options);
+  document.addEventListener("keydown", onNavActivity);
+
+  navActivityListening = true;
+};
+
+const removeNavActivityListeners = () => {
+  if (!navActivityListening) {
+    return;
+  }
+
+  const options = { passive: true };
+  document.removeEventListener("pointerdown", onNavActivity, options);
+  document.removeEventListener("pointermove", onNavActivity, options);
+  document.removeEventListener("touchstart", onNavActivity, options);
+  document.removeEventListener("wheel", onNavActivity, options);
+  document.removeEventListener("keydown", onNavActivity);
+
+  navActivityListening = false;
+};
+
 const closeMobileNav = () => {
   if (!siteNav || !navToggle) {
     return;
@@ -89,6 +140,13 @@ const closeMobileNav = () => {
 
   siteNav.classList.remove("is-open");
   navToggle.setAttribute("aria-expanded", "false");
+
+  if (navIdleCloseTimeout) {
+    window.clearTimeout(navIdleCloseTimeout);
+    navIdleCloseTimeout = null;
+  }
+
+  removeNavActivityListeners();
 };
 
 const openMobileNav = () => {
@@ -98,12 +156,18 @@ const openMobileNav = () => {
 
   siteNav.classList.add("is-open");
   navToggle.setAttribute("aria-expanded", "true");
+  addNavActivityListeners();
+  scheduleNavAutoClose();
 };
 
 if (navToggle && siteNav) {
   navToggle.addEventListener("click", () => {
-    const isOpen = siteNav.classList.toggle("is-open");
-    navToggle.setAttribute("aria-expanded", String(isOpen));
+    if (siteNav.classList.contains("is-open")) {
+      closeMobileNav();
+      return;
+    }
+
+    openMobileNav();
   });
 
   navLinks.forEach((link) => {
@@ -195,31 +259,6 @@ const onHeaderScroll = () => {
 updateHeaderVisibility();
 window.addEventListener("scroll", onHeaderScroll, { passive: true });
 window.addEventListener("resize", updateHeaderVisibility);
-
-let autoOpenedNav = false;
-const maybeAutoOpenNav = () => {
-  if (!siteNav || !navToggle) {
-    return;
-  }
-
-  if (autoOpenedNav) {
-    return;
-  }
-
-  if (!window.matchMedia("(max-width: 860px)").matches) {
-    return;
-  }
-
-  if (siteHeader?.classList.contains("is-hidden")) {
-    return;
-  }
-
-  openMobileNav();
-  autoOpenedNav = true;
-};
-
-window.addEventListener("scroll", maybeAutoOpenNav, { passive: true });
-window.addEventListener("resize", maybeAutoOpenNav);
 
 if ("IntersectionObserver" in window) {
   const revealObserver = new IntersectionObserver(
