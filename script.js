@@ -297,3 +297,125 @@ if (contactWhatsappButton instanceof HTMLButtonElement) {
     }, 450);
   });
 }
+
+const downloadModal = document.querySelector("#download-modal");
+const downloadModalWindow = downloadModal?.querySelector(".download-modal-window");
+const downloadTrigger = document.querySelector("[data-download-trigger]");
+const downloadCloseNodes = document.querySelectorAll("[data-download-close]");
+
+let downloadModalPreviouslyFocused = null;
+
+const getDownloadModalFocusable = () => {
+  if (!(downloadModalWindow instanceof HTMLElement)) {
+    return [];
+  }
+
+  const nodes = Array.from(
+    downloadModalWindow.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+  );
+
+  return nodes.filter(
+    (node) =>
+      node instanceof HTMLElement &&
+      !node.hasAttribute("disabled") &&
+      node.getAttribute("aria-hidden") !== "true"
+  );
+};
+
+const closeDownloadModal = () => {
+  if (!(downloadModal instanceof HTMLElement)) {
+    return;
+  }
+
+  downloadModal.classList.remove("is-open");
+  downloadModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("is-modal-open");
+  document.removeEventListener("keydown", onDownloadModalKeydown);
+
+  if (downloadModalPreviouslyFocused instanceof HTMLElement) {
+    downloadModalPreviouslyFocused.focus();
+  }
+
+  downloadModalPreviouslyFocused = null;
+};
+
+const openDownloadModal = () => {
+  if (!(downloadModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (downloadModal.classList.contains("is-open")) {
+    return;
+  }
+
+  downloadModalPreviouslyFocused =
+    document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  downloadModal.classList.add("is-open");
+  downloadModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("is-modal-open");
+  document.addEventListener("keydown", onDownloadModalKeydown);
+
+  const focusable = getDownloadModalFocusable();
+  const closeButton = downloadModal.querySelector(".download-modal-close");
+
+  if (closeButton instanceof HTMLElement) {
+    closeButton.focus();
+  } else if (focusable[0] instanceof HTMLElement) {
+    focusable[0].focus();
+  }
+};
+
+const onDownloadModalKeydown = (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeDownloadModal();
+    return;
+  }
+
+  if (event.key !== "Tab") {
+    return;
+  }
+
+  const focusable = getDownloadModalFocusable();
+  if (!focusable.length) {
+    event.preventDefault();
+    return;
+  }
+
+  const activeElement = document.activeElement;
+  const currentIndex = focusable.findIndex((node) => node === activeElement);
+
+  if (event.shiftKey) {
+    if (currentIndex <= 0) {
+      event.preventDefault();
+      focusable[focusable.length - 1].focus();
+    }
+    return;
+  }
+
+  if (currentIndex === -1 || currentIndex >= focusable.length - 1) {
+    event.preventDefault();
+    focusable[0].focus();
+  }
+};
+
+if (downloadTrigger instanceof HTMLElement) {
+  downloadTrigger.addEventListener("click", openDownloadModal);
+  downloadTrigger.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openDownloadModal();
+    }
+  });
+}
+
+if (downloadModal instanceof HTMLElement) {
+  downloadCloseNodes.forEach((node) => {
+    if (node instanceof HTMLElement) {
+      node.addEventListener("click", closeDownloadModal);
+    }
+  });
+}
