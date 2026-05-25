@@ -1,0 +1,26 @@
+[build]
+publish = "."
+
+[[redirects]]
+from = "http://antesdelfuturo.cl/*"
+to = "https://antesdelfuturo.cl/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "http://www.antesdelfuturo.cl/*"
+to = "https://antesdelfuturo.cl/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "https://www.antesdelfuturo.cl/*"
+to = "https://antesdelfuturo.cl/:splat"
+status = 301
+force = true
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Strict-Transport-Security = "max-age=31536000"
