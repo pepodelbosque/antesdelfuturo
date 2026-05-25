@@ -429,10 +429,6 @@ main > .section:first-of-type {
   letter-spacing: -0.06em;
 }
 
-.hero h1 {
-  font-size: clamp(1.25rem, 5.6vw, 6.765rem);
-}
-
 .section-heading h2,
 .cta-copy h2 {
   max-width: 12ch;
